@@ -26,6 +26,18 @@ def generate_maze(width, height):
     maze[height-2][1] = 'A'
     maze[1][width-2] = 'B'
 
+    def replace_hashes_with_spaces(maze):
+        passage_chance = sys.argv[3] if len(sys.argv) == 4 else sys.argv[1] if len(sys.argv) == 2 else 0
+        passage_chance = int(passage_chance.replace('%', ''))
+        for y in range(1, len(maze)-1):
+            for x in range(1, len(maze[y])-1):
+                if maze[y][x] == '#':
+                    if random.randint(0, 100) <= passage_chance:
+                        maze[y][x] = ' '
+
+    # Применяем функцию к лабиринту
+    replace_hashes_with_spaces(maze)
+    
     return maze
 
 def save_maze_to_file(maze, filename):
@@ -34,7 +46,7 @@ def save_maze_to_file(maze, filename):
             file.write(''.join(row) + '\n')
 
 # Задаем размеры лабиринта
-if len(sys.argv) != 3:
+if len(sys.argv) < 3:
     maze_width = 17
     maze_height = 17
 else:
