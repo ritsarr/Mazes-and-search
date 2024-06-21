@@ -1,10 +1,12 @@
 import sys
 
 class Node():
-    def __init__(self, state, parent, action):
+    def __init__(self, state, parent, action, h_dist, t_dist):
         self.state = state
         self.parent = parent
         self.action = action
+        self.h_dist = h_dist
+        self.t_dist = t_dist
 
 
 class StackFrontier():
@@ -38,6 +40,28 @@ class QueueFrontier(StackFrontier):
             node = self.frontier[0]
             self.frontier = self.frontier[1:]
             return node
+        
+
+class GreedyFrontier(StackFrontier):
+    def remove(self):
+        if self.empty():
+            raise Exception("empty frontier")
+        else:
+            self.frontier = list(sorted(self.frontier, key=lambda x: x.h_dist))
+            node = self.frontier[0]
+            self.frontier = self.frontier[1:]
+            return node
+
+class AStarFrontier(StackFrontier):
+    def remove(self):
+        if self.empty():
+            raise Exception("empty frontier")
+        else:
+            self.frontier = list(sorted(self.frontier, key=lambda x: x.h_dist + x.t_dist))
+            node = self.frontier[0]
+            self.frontier = self.frontier[1:]
+            return node
+        
 
 class Maze():
 
@@ -94,6 +118,8 @@ class Maze():
                     print("B", end="")
                 elif solution is not None and (i, j) in solution:
                     print("*", end="")
+                elif solution is not None and len(sys.argv) == 4 and (i, j) in self.explored:
+                    print("%", end="")                
                 else:
                     print(" ", end="")
             print()
@@ -123,11 +149,17 @@ class Maze():
         self.num_explored = 0
 
         # Initialize frontier to just the starting position
-        start = Node(state=self.start, parent=None, action=None)
+        start = Node(state=self.start, parent=None, action=None,
+                     h_dist=abs(self.goal[0] - self.start[0]) + abs(self.goal[1] - self.start[1]),
+                     t_dist=0)
         if sys.argv[2] in ['Stack', 'stack', 'DFS', 'dfs']: 
             frontier = StackFrontier()
         elif sys.argv[2] in ['Queue', 'queue', 'BFS', 'bfs']:
             frontier = QueueFrontier()
+        elif sys.argv[2] in ['Greedy', 'greedy', 'GBFS', 'gbfs']:
+            frontier = GreedyFrontier()
+        elif sys.argv[2] in ['A*', 'a*', 'AStar', 'astar', 'a_star']:
+            frontier = AStarFrontier()
         else:
             raise Exception("incorrect type, use DFS or BFS")
         frontier.add(start)
@@ -165,7 +197,8 @@ class Maze():
             # Add neighbors to frontier
             for action, state in self.neighbors(node.state):
                 if not frontier.contains_state(state) and state not in self.explored:
-                    child = Node(state=state, parent=node, action=action)
+                    child = Node(state=state, parent=node, action=action, h_dist=0, t_dist=node.t_dist + 1)
+                    child.h_dist = abs(self.goal[0] - child.state[0]) + abs(self.goal[1] - child.state[1])
                     frontier.add(child)
 
 
