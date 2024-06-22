@@ -4,8 +4,8 @@
 - First argument: the path to the maze.txt file or a similar one, maze_generator creates this type of file.
 - Second argument: type of the algorithm (DFS, BFS, GBFS, AStar).
 - Third argument: showing the explored nodes (show).
-- The graphical representation of the algorithm's operation uses the pillow module (pip install pillow).
-
+- Fourth argument: create a GIF animation to show the progress (gif).
+- Fifth argument: determine the GIF's FPS — how many steps will be shown per frame.
 
 ## Maze_generatoe launch:
 - First and second arguments: width and height.
@@ -24,6 +24,6 @@
 
 ###### Additional information: 
 1. BFS and AStar will guaranteed find the optimal way, while DFS and GBFS will not.
-1. Sometimes DFS and GBFS can find the way faster due to their aggressive strategy.
+1. Sometimes DFS and GBFS can find the way faster due to their aggressive strategy and luck.
 1. If you don't create passages in the walls, there will be only one way from the start to the finish. In such cases, using the specific "DFS" maze generation algorithm can be optimal and often more effective.
 
