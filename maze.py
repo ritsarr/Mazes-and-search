@@ -1,4 +1,8 @@
 import sys
+import imageio.v2 as imageio
+import tempfile
+import os
+from PIL import Image, ImageDraw
 
 class Node():
     def __init__(self, state, parent, action, h_dist, t_dist):
@@ -7,7 +11,6 @@ class Node():
         self.action = action
         self.h_dist = h_dist
         self.t_dist = t_dist
-
 
 class StackFrontier():
     def __init__(self):
@@ -30,9 +33,7 @@ class StackFrontier():
             self.frontier = self.frontier[:-1]
             return node
 
-
 class QueueFrontier(StackFrontier):
-
     def remove(self):
         if self.empty():
             raise Exception("empty frontier")
@@ -40,7 +41,6 @@ class QueueFrontier(StackFrontier):
             node = self.frontier[0]
             self.frontier = self.frontier[1:]
             return node
-        
 
 class GreedyFrontier(StackFrontier):
     def remove(self):
@@ -61,12 +61,9 @@ class AStarFrontier(StackFrontier):
             node = self.frontier[0]
             self.frontier = self.frontier[1:]
             return node
-        
 
 class Maze():
-
     def __init__(self, filename):
-
         # Read file and set height and width of maze
         with open(filename) as f:
             contents = f.read()
@@ -103,7 +100,7 @@ class Maze():
             self.walls.append(row)
 
         self.solution = None
-
+        self.frames = []  # To store images for GIF
 
     def print(self):
         solution = self.solution[1] if self.solution is not None else None
@@ -118,13 +115,12 @@ class Maze():
                     print("B", end="")
                 elif solution is not None and (i, j) in solution:
                     print("*", end="")
-                elif solution is not None and len(sys.argv) == 4 and (i, j) in self.explored:
+                elif solution is not None and len(sys.argv) >= 4 and (i, j) in self.explored:
                     print("%", end="")                
                 else:
                     print(" ", end="")
             print()
         print()
-
 
     def neighbors(self, state):
         row, col = state
@@ -140,7 +136,6 @@ class Maze():
             if 0 <= r < self.height and 0 <= c < self.width and not self.walls[r][c]:
                 result.append((action, (r, c)))
         return result
-
 
     def solve(self):
         """Finds a solution to maze, if one exists."""
@@ -166,6 +161,9 @@ class Maze():
 
         # Initialize an empty explored set
         self.explored = set()
+        FPS = int(sys.argv[5]) if len(sys.argv) == 6 else 5
+        frame_counter = 0
+        self.save_frame(show_explored=True if len(sys.argv) >= 4 else False)
 
         # Keep looping until solution found
         while True:
@@ -189,6 +187,9 @@ class Maze():
                 actions.reverse()
                 cells.reverse()
                 self.solution = (actions, cells)
+                if len(sys.argv) >= 5:
+                    self.save_frame(show_explored=True if len(sys.argv) >= 4 else False)
+                    self.create_gif()  # Create GIF after finding solution
                 return
 
             # Mark node as explored
@@ -201,9 +202,14 @@ class Maze():
                     child.h_dist = abs(self.goal[0] - child.state[0]) + abs(self.goal[1] - child.state[1])
                     frontier.add(child)
 
+            # Save the current state of the maze
+            if len(sys.argv) >= 5 and frame_counter == FPS:
+                FPS == int(sys.argv[5]) if len(sys.argv) == 6 else 5
+                self.save_frame(show_explored=True if len(sys.argv) >= 4 else False)
+                frame_counter = 0
+            frame_counter+=1
 
     def output_image(self, filename, show_solution=True, show_explored=False):
-        from PIL import Image, ImageDraw   #PIL -> pillow
         cell_size = 50
         cell_border = 2
 
@@ -236,7 +242,7 @@ class Maze():
                     fill = (220, 235, 113)
 
                 # Explored
-                elif solution is not None and show_explored and (i, j) in self.explored:
+                elif show_explored and (i, j) in self.explored:
                     fill = (212, 97, 85)
 
                 # Empty cell
@@ -252,9 +258,21 @@ class Maze():
 
         img.save(filename)
 
+    def save_frame(self, show_solution=True, show_explored=False):
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmpfile:
+            self.output_image(tmpfile.name, show_solution, show_explored)
+            self.frames.append(tmpfile.name)
 
-if len(sys.argv) < 2:
-    sys.exit("Usage: python maze.py maze.txt")
+    def create_gif(self):
+        images = []
+        for filename in self.frames:
+            images.append(imageio.imread(filename))
+        imageio.mimsave('maze.gif', images, duration=0.5)
+        for filename in self.frames:  # Cleanup temporary files
+            os.remove(filename)
+
+if len(sys.argv) < 3:
+    sys.exit("Usage: python3 maze.py 'maze.txt' 'algorith type' 'show_progress' 'show_progress_gif' 'gif_FPS'")
 m = Maze(sys.argv[1])
 print("Maze:")
 m.print()
@@ -263,4 +281,4 @@ m.solve()
 print("States Explored:", m.num_explored)
 print("Solution:")
 m.print()
-m.output_image("maze.png", show_explored = True if len(sys.argv) == 4 else False)
+m.output_image("maze.png", show_explored = True if len(sys.argv) >= 4 else False)
