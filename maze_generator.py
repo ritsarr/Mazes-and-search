@@ -27,7 +27,7 @@ def generate_maze(width, height):
     maze[1][width-2] = 'B'
 
     def replace_hashes_with_spaces(maze):
-        passage_chance = sys.argv[3] if len(sys.argv) == 4 else sys.argv[1] if len(sys.argv) == 2 else 0
+        passage_chance = sys.argv[3] if len(sys.argv) == 4 else sys.argv[1] if len(sys.argv) == 2 else '0'
         passage_chance = int(passage_chance.replace('%', ''))
         for y in range(1, len(maze)-1):
             for x in range(1, len(maze[y])-1):
