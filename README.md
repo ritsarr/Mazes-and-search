@@ -7,12 +7,12 @@
 - Fourth argument: create a GIF animation to show the progress (gif).
 - Fifth argument: determine the GIF's FPS — how many steps will be shown per frame.
 
-## Maze_generatoe launch:
+## Maze_generator launch:
 - First and second arguments: width and height.
 - Third argument: percentage of passages in the walls.
 - Alternatively, you can omit specifying the size of the maze; in that case, the first argument will indicate the percentage of passages.
 
-**Maze generation:** A depth-first search generation algorithm is used: we navigate the maze until we hit a wall or an already existing passage, then we try to turn in other available directions. If none are available, we return to the previous vertex and repeat the described actions for it. Thus, we traverse all possible paths, bounded by walls one unit thick. We always move in steps of two to leave walls between the paths. If you do not specify the percentage of passages, there will be only one way from the start to the finish. This is a beneficial feature for mazes but is not typically encountered in the real world. Therefore, if you are testing different search algorithms, it would be better to have multiple ways from the start to the finish.
+**Maze generation:** A depth-first search generation algorithm is used: we navigate the maze until we hit a wall or an already existing passage, then we try to turn in other available directions. If none are available, we return to the previous vertex and repeat the described actions for it. The vertices are stored in a stack to avoid recursion calls. Thus, we traverse all possible paths, bounded by walls one unit thick. We always move in steps of two to leave walls between the paths. If you do not specify the percentage of passages, there usually will be only one way from the start to the finish. This is a beneficial feature for mazes but is not typically encountered in the real world. Therefore, if you are testing different search algorithms, it would be better to have multiple ways from the start to the finish.
 
 **DFS:** A depth-first search (DFS) uses a stack in the frontier, allowing us to explore each path to its end before backtracking to the last turn.
 
