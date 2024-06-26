@@ -272,13 +272,17 @@ class Maze():
             os.remove(filename)
 
 if len(sys.argv) < 3:
-    sys.exit("Usage: python3 maze.py 'maze.txt' 'algorith type' 'show_progress' 'show_progress_gif' 'gif_FPS'")
+    sys.exit("Usage: python3 maze.py 'maze.txt' 'algorith type' 'show_progress' 'show_progress_gif' 'gif_FPS' 'show_in_terminal'")
 m = Maze(sys.argv[1])
-print("Maze:")
-m.print()
+if_print = True if len(sys.argv) == 7 else False
+
+if if_print:
+    print("Maze:")
+    m.print()
 print("Solving...")
 m.solve()
 print("States Explored:", m.num_explored)
-print("Solution:")
-m.print()
+if if_print:
+    print("Solution:")
+    m.print()
 m.output_image("maze.png", show_explored = True if len(sys.argv) >= 4 else False)
