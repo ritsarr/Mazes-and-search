@@ -6,6 +6,7 @@
 - Third argument: showing the explored nodes (show).
 - Fourth argument: create a GIF animation to show the progress (gif).
 - Fifth argument: determine the GIF's FPS — how many steps will be shown per frame.
+- Sixth argument: determines whether the maze will be printed in the terminal.
 
 ## Maze_generator launch:
 - First and second arguments: width and height.
